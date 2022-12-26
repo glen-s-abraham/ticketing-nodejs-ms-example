@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import { Password } from "../helpers/password";
 
 
-//Interface required to create a new User
+//interface listing attributes to create a new User
 interface UserAttrs{
     email:string;
     password:string;
@@ -27,6 +28,16 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     }
+})
+
+//pre save hook to run password hashing
+//limit scope of this key word use function not arrow functions.
+userSchema.pre('save',async function (done){
+    if(this.isModified('password')){
+        const hashed = await Password.toHash(this.get('password'));
+        this.set('password',hashed);
+    }
+    done();
 })
 
 userSchema.statics.build = (attrs:UserAttrs)=>new User(attrs);
