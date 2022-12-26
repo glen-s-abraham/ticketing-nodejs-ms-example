@@ -28,6 +28,15 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     }
+},{
+    toJSON:{
+        transform(doc, ret) {
+            ret.id = doc._id;
+            delete ret._id;
+            delete ret.password;
+            delete ret.__v;
+        }
+    }
 })
 
 //pre save hook to run password hashing
