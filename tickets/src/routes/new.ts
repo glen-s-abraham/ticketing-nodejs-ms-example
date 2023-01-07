@@ -1,11 +1,11 @@
-import { validateRequest } from '@glticket/common';
+import { requireAuth, validateRequest } from '@glticket/common';
 import express,{Request,Response} from 'express'
 import { body } from 'express-validator';
 import { Ticket } from '../models/ticket';
 
 const router = express.Router();
 
-router.post('/api/tickets',[
+router.post('/api/tickets',requireAuth,[
     body('title')
         .not()
         .isEmpty()

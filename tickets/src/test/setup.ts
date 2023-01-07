@@ -14,7 +14,7 @@ beforeAll(async()=>{
     process.env.JWT_KEY = 'key';
     //mongo = await MongoMemoryServer.create();
     //const mongoUri = await mongo.getUri();
-    const mongoUri = 'mongodb://localhost:27017'//await mongo.getUri();
+    const mongoUri = 'mongodb://localhost:27017/test'//await mongo.getUri();
     await mongoose.connect(mongoUri);
 })
 
@@ -26,14 +26,17 @@ beforeEach(async()=>{
 })
 
 afterAll(async ()=>{
-    await mongo.stop();
+    const collections = await mongoose.connection.db.collections();
+    for(let collection of collections){
+        await collection.deleteMany({})
+    }
     await mongoose.connection.close();
 })
 
 global.signin = ()=>{
     //build jwt payload {id,email}
     //create jwt
-    const token = jwt.sign({id:'test',email:'test@test.com'},process.env.JWT_KEY)
+    const token = jwt.sign({id:new mongoose.Types.ObjectId().toHexString(),email:'test@test.com'},process.env.JWT_KEY)
     //build session object {jwt:MY_JWT}
     //Turn session to JSON
     //encode JSON to base64
