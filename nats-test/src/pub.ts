@@ -8,5 +8,5 @@ const stan = nats.connect('ticketing','pub',{
 stan.on('connect',async ()=>{
     console.log('Publisher coonnected to nats');
     const publisher = new TicketCreatedPublisher(stan);    
-    await publisher.publish({id:'1235',title:'concert',price:20})
+    await publisher.publish({id:'1235',title:'concert',price:20,userId:'test'})
 })

@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@glticket/common": "^1.0.5",
     "@types/node": "^18.11.18",
     "node-nats-streaming": "^0.3.2",
     "ts-node-dev": "^2.0.0",
