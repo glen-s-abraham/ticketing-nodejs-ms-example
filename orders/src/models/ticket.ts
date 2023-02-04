@@ -1,31 +1,36 @@
-import mongoose from "mongoose";
-import { Order,OrderStatus } from "./order";
+import mongoose from 'mongoose';
+import { Order, OrderStatus } from './order';
 
 interface TicketAttrs {
-  title:string,
-  price:number,
+  title: string;
+  price: number;
 }
+
 export interface TicketDoc extends mongoose.Document {
-    title:string,
-    price:number,
-    isReserved():Promise<Boolean>;
+  title: string;
+  price: number;
+  isReserved(): Promise<boolean>;
 }
+
 interface TicketModel extends mongoose.Model<TicketDoc> {
-  build(TicketAttrs: TicketAttrs): TicketDoc;
+  build(attrs: TicketAttrs): TicketDoc;
 }
 
 const ticketSchema = new mongoose.Schema(
   {
-    title: { type: String, require: true },
+    title: {
+      type: String,
+      required: true,
+    },
     price: {
       type: Number,
-      require: true,
-      min:0
-    }
+      required: true,
+      min: 0,
+    },
   },
   {
     toJSON: {
-      transform: (doc, ret) => {
+      transform(doc, ret) {
         ret.id = ret._id;
         delete ret._id;
       },
@@ -33,16 +38,25 @@ const ticketSchema = new mongoose.Schema(
   }
 );
 
-ticketSchema.statics.build = (attrs: TicketAttrs) => new Ticket(attrs);
-ticketSchema.methods.isReserved = async function(){
-    const existingOrder = Order.find({ticket:this,status:{$in:[
+ticketSchema.statics.build = (attrs: TicketAttrs) => {
+  return new Ticket(attrs);
+};
+ticketSchema.methods.isReserved = async function () {
+  // this === the ticket document that we just called 'isReserved' on
+  const existingOrder = await Order.findOne({
+    ticket: this as any,
+    status: {
+      $in: [
         OrderStatus.Created,
         OrderStatus.AwaitingPayment,
-        OrderStatus.Complete
-    ]}})
-    return existingOrder?true:false;
+        OrderStatus.Complete,
+      ],
+    },
+  });
+
+  return !!existingOrder;
 };
 
-const Ticket = mongoose.model<TicketDoc, TicketModel>("Ticket", ticketSchema);
+const Ticket = mongoose.model<TicketDoc, TicketModel>('Ticket', ticketSchema);
 
 export { Ticket };
